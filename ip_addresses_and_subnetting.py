@@ -33,11 +33,14 @@ def vlsm(ip_network, hosts):
         ip_network = ipaddress.ip_network(str(ip_network) + "/" + str(network_prefix)) #convert address to network object
     return subnets
 
+#error handling
+def error():
+    print("\nPlease check host/subnet information...")
+
+#input
 while True:
-    #input
     address = input("\nEnter a valid IPv4/IPv6 address and prefix: ")
-    #Create IP network object
-    try:
+    try: #Create IP network object
         ip_network = ipaddress.ip_network(address, strict=False)
         break
     except: continue
@@ -58,15 +61,17 @@ while True:
     if user_choice == "1": #vlsm
         hosts = input("\nEnter the number of hosts in each subnet (one line of text): ")
         hosts = hosts.split(" ")
-        try: 
-            hosts = [int(hosts[i]) for i in range(len(hosts))]
+        try: hosts = [int(hosts[i]) for i in range(len(hosts))]
         except ValueError:
-            print("\nPlease check host information...")
+            error()
             continue
         subnets = vlsm(ip_network, hosts)
         break
     elif user_choice == "2": #flsm
-        num_subnets = int(input("\nEnter number of subnets to create: ")) 
+        try: num_subnets = int(input("\nEnter number of subnets to create: ")) 
+        except ValueError: 
+            error()
+            continue
         subnets = flsm(ip_network, num_subnets)
         break
     elif user_choice.lower() == "n": break #end program
@@ -83,7 +88,7 @@ if user_choice == "1" or user_choice == "2":
         print("Last usable host address:", subnets[i][-2])
         print("Broadcast address:", subnets[i].broadcast_address, "\n")
 
-##write results  to file
+#write results  to file
 with open("./ip_and_subnets.txt", "w", encoding="utf-8") as file:
     file.write("Network address: " + str(ip_network.network_address) + " " + str(ip_network.netmask) + "\n")
     file.write("Prefix: /" + str(ip_network.prefixlen) + "\n")
