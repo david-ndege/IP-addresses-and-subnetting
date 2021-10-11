@@ -62,14 +62,14 @@ while True:
         hosts = input("\nEnter the number of hosts in each subnet (one line of text): ")
         hosts = hosts.split(" ")
         try: hosts = [int(hosts[i]) for i in range(len(hosts))]
-        except ValueError:
+        except:
             error()
             continue
         subnets = vlsm(ip_network, hosts)
         break
     elif user_choice == "2": #flsm
         try: num_subnets = int(input("\nEnter number of subnets to create: ")) 
-        except ValueError: 
+        except: 
             error()
             continue
         subnets = flsm(ip_network, num_subnets)
