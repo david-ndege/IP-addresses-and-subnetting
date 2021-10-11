@@ -61,7 +61,7 @@ while True:
     if user_choice == "1": #vlsm
         hosts = input("\nEnter the number of hosts in each subnet (one line of text): ")
         hosts = hosts.split(" ")
-        try: hosts = [int(hosts[i]) for i in range(len(hosts))]
+        try: hosts = [int(i) for i in hosts]
         except:
             error()
             continue
