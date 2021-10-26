@@ -15,7 +15,7 @@ from math import ceil, log2
 #Fixed length subnetting
 def flsm(ip_network, num_subnets = 2):
     prefix_diff = ceil(log2(num_subnets))
-    return list(ip_network.subnets(prefixlen_diff=prefix_diff))
+    return ip_network.subnets(prefixlen_diff=prefix_diff)
 
 #Variable length subnetting
 def vlsm(ip_network, hosts):
@@ -23,15 +23,13 @@ def vlsm(ip_network, hosts):
     #sort hosts in descending order
     hosts.sort(reverse=True)
 
-    subnets = []
-
     for num in hosts:
         num_host_bits = ceil(log2(num + 2))   # + 2 to accomodate network address and broadcast address
         network_prefix = ip_network.max_prefixlen - num_host_bits
-        subnets.append(list(ip_network.subnets(new_prefix = network_prefix))[0])
-        ip_network = ip_network[0] + subnets[-1].num_addresses #get next usable address block
+        subnet = list(ip_network.subnets(new_prefix = network_prefix))[0]
+        yield subnet #generator 
+        ip_network = ip_network.network_address + subnet.num_addresses #get next usable address block
         ip_network = ipaddress.ip_network(str(ip_network) + "/" + str(network_prefix)) #convert address to network object
-    return subnets
 
 #error handling
 def error():
@@ -60,19 +58,19 @@ while True:
     user_choice = input("\n1 - Variable length subnetting (VLSM), 2 - Fixed length subnetting (FLSM), n - None: ")
     if user_choice == "1": #vlsm
         hosts = input("\nEnter the number of hosts in each subnet (one line of text): ")
-        hosts = hosts.split(" ")
+        hosts = hosts.split()
         try: hosts = [int(i) for i in hosts]
         except:
             error()
             continue
-        subnets = vlsm(ip_network, hosts)
+        subnets = list(vlsm(ip_network, hosts))
         break
     elif user_choice == "2": #flsm
         try: num_subnets = int(input("\nEnter number of subnets to create: ")) 
         except: 
             error()
             continue
-        subnets = flsm(ip_network, num_subnets)
+        subnets = list(flsm(ip_network, num_subnets))
         break
     elif user_choice.lower() == "n": break #end program
 
